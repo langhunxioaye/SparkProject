@@ -33,11 +33,46 @@ rdd_flatMap = rdd_map.flatMap(lambda x:jieba.cut(x[2][1:-1]))
 # print(rdd_flatMap.take(10))
 
 # 简便方法
-rdd_count = rdd_flatMap.countByValue()
-print(rdd_count)
+# rdd_count = rdd_flatMap.countByValue()
+# print(rdd_count)
 
 # 使用map方法 转化k-v形式，给定初始值1
 rdd_map1 = rdd_flatMap.map(lambda x:(x,1))
-print(rdd_map1.take(10))
+# print(rdd_map1.take(10))
 rdd_res = rdd_map1.reduceByKey(lambda x,y:x+y)
-print(rdd_res.take(10))
+# print(rdd_res.take(10))
+
+
+# 用户搜索点击统计
+# print(rdd_map.take(3))
+# 构造计算的数据结构  (用户id+搜索内容，点击次数)
+# x接受rdd中的元素数据
+rdd_map3 = rdd_map.map(lambda x:(x[1]+x[2],1))
+# print(rdd_map3.take(3))
+rdd_res = rdd_map3.reduceByKey(lambda x,y:x+y)
+# print(rdd_res.take(3))
+# 可以对统计的记过进行排序，按照点击次数进行排序
+# x接受 rdd中的每个元素，如果元素是一个集合数据，可通过下标的方式指定按照哪个数据进行排序
+# ascending=True 默认是True 表示升序，从小到大排
+rdd_sort = rdd_res.sortBy(lambda x:x[1],ascending=False)
+# print(rdd_sort.take(1))
+
+
+# 不同时间段的用户搜索次数(按照小时统计)  (时间，1)
+# print(rdd_map.take(10))
+# 从rdd取出每个元素数据，然后再对每个元素中时间数据进行处理
+# 将时间转化为key-value形式方便记性reduceBykey
+# x[0][0:2]
+rdd_map4 = rdd_map.map(lambda x:(x[0].split(':')[0],1))
+# print(rdd_map4.take(10))
+# 根据key进行累加计算
+rdd_res2 = rdd_map4.reduceByKey(lambda x,y:x+y)
+# print(rdd_res.take(10))
+rdd_sort1 = rdd_res2.sortBy(lambda x:x[1],ascending=False)
+print(rdd_sort1.take(10))
+
+
+
+
+
+
